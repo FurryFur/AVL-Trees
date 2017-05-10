@@ -12,7 +12,7 @@ CBinaryST::CBinaryST() :
 
 CBinaryST::~CBinaryST()
 {
-	// TODO: Walk the tree and delete nodes
+	DeleteTree(m_pNodeRoot);
 }
 
 void CBinaryST::Insert(int _iVal)
@@ -172,7 +172,7 @@ bool CBinaryST::ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathTo
 {
 	bool bReBalanced = false;
 
-	while (!_stackPathToRoot.empty())
+	while (!_stackPathToRoot.empty() && !bReBalanced)
 	{
 		// Traverse up the tree
 		CBSTNode* pCurNode = _stackPathToRoot.top().first;
@@ -208,7 +208,7 @@ bool CBinaryST::ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathTo
 			int iExternalHeight = pNodePivot->m_arriSubTreeHeights[iPivotIdx];
 			if (iInternalHeight > iExternalHeight)
 			{
-				Rotate(pNodePivot, iInternalIdx, pCurNode, iPivotIdx);
+				Rotate(pCurNode, iPivotIdx, iInternalIdx);
 			}
 
 			// Rotate the tree
@@ -216,10 +216,10 @@ bool CBinaryST::ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathTo
 			{
 				CBSTNode* pParentNode = _stackPathToRoot.top().first;
 				int iCurNodeIdx = _stackPathToRoot.top().second;
-				Rotate(pCurNode, iPivotIdx, pParentNode, iCurNodeIdx);
+				Rotate(pParentNode, iCurNodeIdx, iPivotIdx);
 			}
 			else
-				Rotate(pCurNode, iPivotIdx, nullptr, 0);
+				Rotate(nullptr, 0, iPivotIdx);
 		}
 	}
 
@@ -252,45 +252,112 @@ CBSTNode*& CBinaryST::GetRootNode()
 	return m_pNodeRoot;
 }
 
-bool CBinaryST::Rotate(CBSTNode* _pNodeRoot, int _iPivotIdx, CBSTNode* _pNodeRootParent, int _iRootIdx)
+bool CBinaryST::Rotate(CBSTNode* _pNodeTreeParent, int _iRotRootIdx, int _iPivotIdx)
 {
+	CBSTNode* pNodeRotRoot;
+	if (_pNodeTreeParent == nullptr)
+	{
+		pNodeRotRoot = m_pNodeRoot;
+	}
+	else
+	{
+		pNodeRotRoot = _pNodeTreeParent->GetChildNode(_iRotRootIdx);
+	}
+
 	assert(0 <= _iPivotIdx && _iPivotIdx <= 1);
 
-	CBSTNode* pNodePivot = _pNodeRoot->GetChildNode(_iPivotIdx);
-	if (_pNodeRoot == nullptr || pNodePivot == nullptr)
+	CBSTNode* pNodePivot = pNodeRotRoot->GetChildNode(_iPivotIdx);
+	if (pNodeRotRoot == nullptr || pNodePivot == nullptr)
 		return false;
 
 	int iInternalIdx = (_iPivotIdx + 1) % 2;
 	CBSTNode* pNodeInternal = pNodePivot->GetChildNode(iInternalIdx);
 
 	// Rewire old root nodes pivot pointer to pivots internal tree root
-	_pNodeRoot->SetChildNode(_iPivotIdx, pNodeInternal);
+	pNodeRotRoot->SetChildNode(_iPivotIdx, pNodeInternal);
 
 	// Rewire pivots internal tree pointer to old root
-	pNodePivot->SetChildNode(iInternalIdx, _pNodeRoot);
+	pNodePivot->SetChildNode(iInternalIdx, pNodeRotRoot);
 
 	// Update tree heights for pivot and old root node
 	if (pNodeInternal)
 	{
-		_pNodeRoot->m_arriSubTreeHeights[_iPivotIdx] = std::max(
+		pNodeRotRoot->m_arriSubTreeHeights[_iPivotIdx] = std::max(
 			pNodeInternal->m_arriSubTreeHeights[0] + 1,
 			pNodeInternal->m_arriSubTreeHeights[1] + 1
 		);
 	}
 	else
 	{
-		_pNodeRoot->m_arriSubTreeHeights[_iPivotIdx] = 0;
+		pNodeRotRoot->m_arriSubTreeHeights[_iPivotIdx] = 0;
 	}
 	pNodePivot->m_arriSubTreeHeights[iInternalIdx] = std::max(
-		_pNodeRoot->m_arriSubTreeHeights[0] + 1,
-		_pNodeRoot->m_arriSubTreeHeights[1] + 1
+		pNodeRotRoot->m_arriSubTreeHeights[0] + 1,
+		pNodeRotRoot->m_arriSubTreeHeights[1] + 1
 	);
 
 	// Rewire tree parent's root pointer to pivot
-	if (_pNodeRootParent)
-		_pNodeRootParent->SetChildNode(_iRootIdx, pNodePivot);
+	if (_pNodeTreeParent)
+		_pNodeTreeParent->SetChildNode(_iRotRootIdx, pNodePivot);
 	else
 		m_pNodeRoot = pNodePivot;
 
 	return true;
+}
+
+void CBinaryST::DeleteTree(CBSTNode* _pCurNode)
+{
+	if (_pCurNode != nullptr)
+	{
+		DeleteTree(_pCurNode->GetChildNode(0));
+		DeleteTree(_pCurNode->GetChildNode(1));
+		delete _pCurNode;
+	}
+}
+
+
+
+void CBinaryST::PreOrderOp(std::function<void(int)> _fn)
+{
+	PreOrderOp(_fn, m_pNodeRoot);
+}
+
+void CBinaryST::PreOrderOp(std::function<void(int)> _fn, CBSTNode * _pCurNode)
+{
+	if (_pCurNode != nullptr)
+	{
+		_fn(_pCurNode->m_iVal);
+		PreOrderOp(_fn, _pCurNode->GetChildNode(0));
+		PreOrderOp(_fn, _pCurNode->GetChildNode(1));
+	}
+}
+
+void CBinaryST::PostOrderOp(std::function<void(int)> _fn)
+{
+	PostOrderOp(_fn, m_pNodeRoot);
+}
+
+void CBinaryST::PostOrderOp(std::function<void(int)> _fn, CBSTNode * _pCurNode)
+{
+	if (_pCurNode != nullptr)
+	{
+		PostOrderOp(_fn, _pCurNode->GetChildNode(0));
+		PostOrderOp(_fn, _pCurNode->GetChildNode(1));
+		_fn(_pCurNode->m_iVal);
+	}
+}
+
+void CBinaryST::InOrderOp(std::function<void(int)> _fn)
+{
+	InOrderOp(_fn, m_pNodeRoot);
+}
+
+void CBinaryST::InOrderOp(std::function<void(int)> _fn, CBSTNode * _pCurNode)
+{
+	if (_pCurNode != nullptr)
+	{
+		InOrderOp(_fn, _pCurNode->GetChildNode(0));
+		_fn(_pCurNode->m_iVal);
+		InOrderOp(_fn, _pCurNode->GetChildNode(1));
+	}
 }
