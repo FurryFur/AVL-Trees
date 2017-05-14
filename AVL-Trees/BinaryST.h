@@ -16,8 +16,6 @@ public:
 	bool Search(int _iVal);
 	CBSTNode*& GetRootNode();
 
-	bool Rotate(CBSTNode* _pNodeTreeParent, int _iRotRootIdx, int _iPivotIdx);
-
 	void PreOrderOp(std::function<void(int)> _fn);
 	void PreOrderOp(std::function<void(int)> _fn, CBSTNode* _pCurNode);
 	void PostOrderOp(std::function<void(int)> _fn);
@@ -28,6 +26,7 @@ public:
 private:
 	CBSTNode* m_pNodeRoot;
 
+	bool Rotate(CBSTNode* _pNodeTreeParent, int _iRotRootIdx, int _iPivotIdx);
 	void Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*, int>> _stackPathToRoot);
 	bool ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathToRoot);
 

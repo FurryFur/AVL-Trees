@@ -196,45 +196,6 @@ TEST_CASE("Delete")
 	}
 }
 
-TEST_CASE("Rotate root right")
-{
-	CBinaryST tree;
-	tree.Insert(10);
-	tree.Insert(5);
-	tree.Insert(34);
-	tree.Insert(2);
-	tree.Insert(9);
-	tree.Insert(20);
-	tree.Insert(3);
-
-	bool bResult = tree.Rotate(nullptr, 0, 0);
-	REQUIRE(bResult == true);
-	REQUIRE(tree.GetRootNode()->m_iVal == 5);
-	REQUIRE(tree.GetRootNode()->GetChildNode(0)->m_iVal == 2);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->m_iVal == 10);
-	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0) == nullptr);
-	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->m_iVal == 3);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->m_iVal == 9);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->m_iVal == 34);
-	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetChildNode(0) == nullptr);
-	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetChildNode(1) == nullptr);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(0) == nullptr);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(1) == nullptr);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetChildNode(0)->m_iVal == 20);
-	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetChildNode(1) == nullptr);
-
-	SECTION("Check Balance Factors")
-	{
-		REQUIRE(tree.GetRootNode()->GetBalanceFactor() == 1);
-		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetBalanceFactor() == 1);
-		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetBalanceFactor() == 1);
-		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
-		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
-		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == -1);
-		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
-	}
-}
-
 TEST_CASE("Trigger: Rotate Root Left with Insert")
 {
 	CBinaryST tree;
@@ -338,6 +299,121 @@ TEST_CASE("Trigger: Rotate non-root left with insertion")
 		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
 		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
 		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == 0);
+	}
+}
+
+TEST_CASE("Trigger: Left rotation on non-root with insertion")
+{
+	CBinaryST tree;
+	tree.Insert(10);
+	tree.Insert(2);
+	tree.Insert(34);
+	tree.Insert(1);
+	tree.Insert(6);
+	tree.Insert(20);
+	tree.Insert(40);
+	tree.Insert(36);
+	tree.Insert(41);
+	tree.Insert(42);
+
+	REQUIRE(tree.GetRootNode()->m_iVal == 10);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->m_iVal == 2);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->m_iVal == 40);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0)->m_iVal == 1);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->m_iVal == 6);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->m_iVal == 34);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->m_iVal == 41);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(0)->m_iVal == 20);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(1)->m_iVal == 36);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetChildNode(1)->m_iVal == 42);
+
+	SECTION("Check Balance Factors")
+	{
+		REQUIRE(tree.GetRootNode()->GetBalanceFactor() == 1);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == 1);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == 0);
+	}
+}
+
+TEST_CASE("Trigger: Left-Right rotation on non-root with insertion")
+{
+	CBinaryST tree;
+	tree.Insert(10);
+	tree.Insert(2);
+	tree.Insert(34);
+	tree.Insert(1);
+	tree.Insert(6);
+	tree.Insert(31);
+	tree.Insert(36);
+	tree.Insert(6);
+	tree.Insert(3);
+	tree.Insert(5);
+
+	REQUIRE(tree.GetRootNode()->m_iVal == 10);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->m_iVal == 2);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->m_iVal == 34);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0)->m_iVal == 1);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->m_iVal == 5);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->m_iVal == 31);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->m_iVal == 36);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetChildNode(0)->m_iVal == 3);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetChildNode(1)->m_iVal == 6);
+
+	SECTION("Check Balance Factors")
+	{
+		REQUIRE(tree.GetRootNode()->GetBalanceFactor() == -1);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetBalanceFactor() == 1);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == 0);
+	}
+}
+
+TEST_CASE("Trigger: Right-Left rotation on non-root with insertion")
+{
+	CBinaryST tree;
+	tree.Insert(10);
+	tree.Insert(2);
+	tree.Insert(34);
+	tree.Insert(1);
+	tree.Insert(6);
+	tree.Insert(31);
+	tree.Insert(36);
+	tree.Insert(33);
+	tree.Insert(32);
+
+	REQUIRE(tree.GetRootNode()->m_iVal == 10);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->m_iVal == 2);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->m_iVal == 34);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0)->m_iVal == 1);
+	REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->m_iVal == 6);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->m_iVal == 32);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->m_iVal == 36);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(0)->m_iVal == 31);
+	REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(1)->m_iVal == 33);
+
+	SECTION("Check Balance Factors")
+	{
+		REQUIRE(tree.GetRootNode()->GetBalanceFactor() == 1);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetBalanceFactor() == -1);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(1)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(0)->GetBalanceFactor() == 0);
+		REQUIRE(tree.GetRootNode()->GetChildNode(1)->GetChildNode(0)->GetChildNode(1)->GetBalanceFactor() == 0);
 	}
 }
 
