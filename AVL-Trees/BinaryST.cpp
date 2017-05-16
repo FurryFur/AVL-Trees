@@ -58,7 +58,7 @@ void CBinaryST::Insert(int _iVal)
 	}
 }
 
-void CBinaryST::Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*, int>> _stackPathToRoot)
+void CBinaryST::Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*, int>>& _rStackPathToRoot)
 {
 	// Check we have a node to delete
 	if (_pNodeToDelete == nullptr)
@@ -66,10 +66,10 @@ void CBinaryST::Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*,
 
 	CBSTNode* pParentNode = nullptr;
 	int iNodeToDeleteIdx = 0;
-	if (!_stackPathToRoot.empty())
+	if (!_rStackPathToRoot.empty())
 	{
-		pParentNode = _stackPathToRoot.top().first;
-		iNodeToDeleteIdx = _stackPathToRoot.top().second;
+		pParentNode = _rStackPathToRoot.top().first;
+		iNodeToDeleteIdx = _rStackPathToRoot.top().second;
 	}
 
 	int iChildIdx = 0;
@@ -77,7 +77,7 @@ void CBinaryST::Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*,
 	// For leaf nodes just delete them
 	if (_pNodeToDelete->IsLeaf())
 	{
-		if (!_stackPathToRoot.empty())
+		if (!_rStackPathToRoot.empty())
 		{
 			// Delete from parent
 			pParentNode->Delete(iNodeToDeleteIdx);
@@ -108,7 +108,7 @@ void CBinaryST::Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*,
 		while (pNextLeftChild = pReplacementNode->GetChildNode(iReplacementIdx))
 		{
 			pReplacementParent = pReplacementNode;
-			_stackPathToRoot.push(std::make_pair(pReplacementParent, iReplacementIdx));
+			_rStackPathToRoot.push(std::make_pair(pReplacementParent, iReplacementIdx));
 			pReplacementNode = pNextLeftChild;
 
 			// Swap to traversing left after first iteration
@@ -132,7 +132,7 @@ void CBinaryST::Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*,
 		}
 	}
 
-	ReBalanceTree(_stackPathToRoot);
+	ReBalanceTree(_rStackPathToRoot);
 }
 
 
@@ -168,17 +168,17 @@ bool CBinaryST::Delete(int _iVal)
 	return bResult;
 }
 
-bool CBinaryST::ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathToRoot)
+bool CBinaryST::ReBalanceTree(std::stack<std::pair<CBSTNode*, int>>& _rStackPathToRoot)
 {
 	bool bReBalanced = false;
 
-	while (!_stackPathToRoot.empty() && !bReBalanced)
+	while (!_rStackPathToRoot.empty() && !bReBalanced)
 	{
 		// Traverse up the tree
-		CBSTNode* pCurNode = _stackPathToRoot.top().first;
-		int iChildIdx = _stackPathToRoot.top().second;
+		CBSTNode* pCurNode = _rStackPathToRoot.top().first;
+		int iChildIdx = _rStackPathToRoot.top().second;
 		CBSTNode* pChildNode = pCurNode->GetChildNode(iChildIdx);
-		_stackPathToRoot.pop();
+		_rStackPathToRoot.pop();
 
 		// Update height of relevant subtree
 		if (pChildNode)
@@ -212,10 +212,10 @@ bool CBinaryST::ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathTo
 			}
 
 			// Rotate the tree
-			if (!_stackPathToRoot.empty())
+			if (!_rStackPathToRoot.empty())
 			{
-				CBSTNode* pParentNode = _stackPathToRoot.top().first;
-				int iCurNodeIdx = _stackPathToRoot.top().second;
+				CBSTNode* pParentNode = _rStackPathToRoot.top().first;
+				int iCurNodeIdx = _rStackPathToRoot.top().second;
 				Rotate(pParentNode, iCurNodeIdx, iPivotIdx);
 			}
 			else

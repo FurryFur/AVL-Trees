@@ -27,8 +27,8 @@ private:
 	CBSTNode* m_pNodeRoot;
 
 	bool Rotate(CBSTNode* _pNodeTreeParent, int _iRotRootIdx, int _iPivotIdx);
-	void Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*, int>> _stackPathToRoot);
-	bool ReBalanceTree(std::stack<std::pair<CBSTNode*, int>> _stackPathToRoot);
+	void Delete(CBSTNode* _pNodeToDelete, std::stack<std::pair<CBSTNode*, int>>& _rStackPathToRoot);
+	bool ReBalanceTree(std::stack<std::pair<CBSTNode*, int>>& _rStackPathToRoot);
 
 	void DeleteTree(CBSTNode* _pCurNode);
 };
